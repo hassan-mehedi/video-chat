@@ -5,9 +5,8 @@ import socket from "./socket/socket";
 function App() {
     const [message, setMessage] = useState("");
     useEffect(() => {
-        socket.on("welcome", data => {
-            console.log(data);
-            setMessage(data);
+        socket.on("server-connect", message => {
+            setMessage(message);
         });
     }, []);
 
@@ -18,6 +17,7 @@ function App() {
     return (
         <div className="App">
             <button onClick={sendMessage}>Emit message</button>
+            <p>{message}</p>
         </div>
     );
 }

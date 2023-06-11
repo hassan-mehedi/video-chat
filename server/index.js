@@ -34,6 +34,8 @@ io.on("connection", socket => {
 
     socket.on("client-connect", message => {
         console.log(message);
+
+        socket.emit("server-connect", "Hello from server");
     });
 });
 
