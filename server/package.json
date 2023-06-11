@@ -1,0 +1,20 @@
+{
+    "name": "video-chat",
+    "version": "1.0.0",
+    "description": "Video chat application using Node.js, Express.js, Socket.io, React.js and Peer.js",
+    "main": "index.js",
+    "scripts": {
+        "start": "node index.js",
+        "dev": "nodemon index.js"
+    },
+    "author": "Md. Mehedi Hassan",
+    "license": "ISC",
+    "dependencies": {
+        "body-parser": "^1.20.2",
+        "cors": "^2.8.5",
+        "express": "^4.18.2",
+        "morgan": "^1.10.0",
+        "nodemon": "^2.0.22",
+        "socket.io": "^4.6.2"
+    }
+}
