@@ -1,24 +1,18 @@
-import { useState, useEffect } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+
+import Home from "./pages/Home";
+import Room from "./pages/Room";
+
 import "./App.css";
-import socket from "./socket/socket";
 
 function App() {
-    const [message, setMessage] = useState("");
-    useEffect(() => {
-        socket.on("server-connect", message => {
-            setMessage(message);
-        });
-    }, []);
-
-    function sendMessage() {
-        socket.emit("client-connect", "Hello from client");
-    }
-
     return (
-        <div className="App">
-            <button onClick={sendMessage}>Emit message</button>
-            <p>{message}</p>
-        </div>
+        <BrowserRouter>
+            <Routes>
+                <Route exact path="/" element={<Home />} />
+                <Route exact path="/room/:roomId" element={<Room />} />
+            </Routes>
+        </BrowserRouter>
     );
 }
 
