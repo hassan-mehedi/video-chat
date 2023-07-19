@@ -4,7 +4,7 @@
     "version": "0.0.0",
     "type": "module",
     "scripts": {
-        "dev": "vite --host localhost --port 3000",
+        "dev": "vite",
         "build": "vite build",
         "lint": "eslint src --ext js,jsx --report-unused-disable-directives --max-warnings 0",
         "preview": "vite preview"
@@ -19,7 +19,8 @@
         "react-dom": "^18.2.0",
         "react-router-dom": "^6.12.1",
         "simple-peer": "^9.11.1",
-        "socket.io-client": "^4.6.2"
+        "socket.io-client": "^4.6.2",
+        "styled-components": "^6.0.4"
     },
     "devDependencies": {
         "@types/react": "^18.0.37",
