@@ -16,7 +16,7 @@ app.use(bodyParser.json());
 // Initialize Socket.io
 const io = require("socket.io")(http, {
     cors: {
-        origin: ["http://localhost:3000", "https://ef66-114-130-81-43.ngrok-free.app"],
+        origin: ["http://localhost:3000", " https://8945-103-180-245-250.ngrok-free.app"],
     },
 });
 
@@ -46,6 +46,8 @@ io.on("connection", socket => {
         socket.join(roomId);
         socketList[socket.id] = { userName, video: true, audio: true };
 
+        console.log(socketList);
+
         // Broadcast to all users in the room that a user has joined the room
         io.sockets.in(roomId).clients((error, clients) => {
             if (error) {
@@ -66,25 +68,30 @@ io.on("connection", socket => {
         let userExists = false;
 
         // Match user name with the current users in the room
-        io.sockets.in(roomId).clients((error, clients) => {
-            if (error) {
-                console.log(error);
-                io.sockets.in(roomId).emit("[SERVER]-ERROR-OCCURRED-USER-EXISTS", { error: true });
-            }
-
-            clients.forEach(client => {
-                if (socketList[client].userName === userName) {
-                    userExists = true;
+        try {
+            io.sockets.in(roomId).clients((error, clients) => {
+                if (error) {
+                    console.log(error);
+                    io.sockets.in(roomId).emit("[SERVER]-ERROR-OCCURRED-USER-EXISTS", { error: true });
                 }
-            });
 
-            socket.emit("[SERVER]-USER-EXISTS", userExists);
-        });
+                clients.forEach(client => {
+                    if (socketList[client].userName === userName) {
+                        userExists = true;
+                    }
+                });
+
+                socket.emit("[SERVER]-ERROR-OCCURRED-USER-EXISTS", userExists);
+            });
+        } catch (error) {
+            console.log(error);
+            socket.emit("[SERVER]-ERROR-OCCURRED-USER-EXISTS", userExists);
+        }
     });
 
     // Call user
-    socket.on("[SERVER]-CALL-USER", ({ recieverInformation, from, signal }) => {
-        io.to(recieverInformation).emit("[CLIENT]-RECIEVE-CALL", {
+    socket.on("[SERVER]-CALL-USER", ({ userToCall, from, signal }) => {
+        io.to(userToCall).emit("[CLIENT]-RECIEVE-CALL", {
             signal,
             from,
             information: socketList[socket.id],
@@ -95,12 +102,13 @@ io.on("connection", socket => {
     socket.on("[SERVER]-ACCEPT-CALL", ({ signal, to }) => {
         io.to(to).emit("[CLIENT]-CALL-ACCEPTED", {
             signal,
-            information: socketList[socket.id],
+            answerId: socketList[socket.id],
         });
     });
 
     // Send Message
     socket.on("[SERVER]-SEND-MESSAGE", ({ roomId, message, sender }) => {
+        console.log(roomId, message, sender);
         io.sockets.in(roomId).emit("[CLIENT]-RECEIVE-MESSAGE", { message, sender });
     });
 
@@ -114,15 +122,14 @@ io.on("connection", socket => {
     });
 
     // Toggle Video Audio
-    socket.on("[SERVER]-TOGGLE-VIDEO-AUDIO", ({ roomId, video, audio }) => {
-        if (video) {
-            socketList[socket.id].video = video;
-        }
-        if (audio) {
-            socketList[socket.id].audio = audio;
+    socket.on("[SERVER]-TOGGLE-VIDEO-AUDIO", ({ roomId, switchTarget }) => {
+        if (switchTarget === "video") {
+            socketList[socket.id].video = !socketList[socket.id].video;
+        } else {
+            socketList[socket.id].audio = !socketList[socket.id].audio;
         }
 
-        socket.broadcast.to(roomId).emit("[CLIENT]-TOGGLE-VIDEO-AUDIO", { userId: socket.id, video, audio });
+        socket.broadcast.to(roomId).emit("[CLIENT]-TOGGLE-VIDEO-AUDIO", { userId: socket.id, switchTarget });
     });
 });
 

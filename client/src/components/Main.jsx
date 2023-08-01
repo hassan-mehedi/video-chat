@@ -1,10 +1,12 @@
 import React, { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import socket from "../socket/socket";
 
 const Main = props => {
     const roomRef = useRef();
     const userRef = useRef();
+    const navigate = useNavigate();
     const [err, setErr] = useState(false);
     const [errMsg, setErrMsg] = useState("");
 
@@ -15,7 +17,7 @@ const Main = props => {
                 const userName = userRef.current.value;
 
                 sessionStorage.setItem("user", userName);
-                props.history.push(`/room/${roomName}`);
+                navigate(`/room/${roomName}`);
             } else {
                 setErr(error);
                 setErrMsg("User name already exist");

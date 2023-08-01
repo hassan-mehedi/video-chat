@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
 import Peer from "simple-peer";
 import styled from "styled-components";
 import socket from "../socket/socket";
-import VideoCard from "./VideoCard";
+import Video from "./Video";
 import BottomBar from "./BottomBar";
 import Chat from "./Chat";
 
@@ -20,7 +21,7 @@ const Room = props => {
     const userVideoRef = useRef();
     const screenTrackRef = useRef();
     const userStream = useRef();
-    const roomId = props.match.params.roomId;
+    const { roomId } = useParams();
 
     useEffect(() => {
         // Get Video Devices
@@ -41,8 +42,8 @@ const Room = props => {
             socket.on("[CLIENT]-USER-JOINED", users => {
                 // all users
                 const peers = [];
-                users.forEach(({ userId, info }) => {
-                    let { userName, video, audio } = info;
+                users.forEach(({ userId, information }) => {
+                    let { userName, video, audio } = information;
 
                     if (userName !== currentUser) {
                         const peer = createPeer(userId, socket.id, stream);
@@ -69,8 +70,8 @@ const Room = props => {
                 setPeers(peers);
             });
 
-            socket.on("[CLIENT]-RECIEVE-CALL", ({ signal, from, info }) => {
-                let { userName, video, audio } = info;
+            socket.on("[CLIENT]-RECIEVE-CALL", ({ signal, from, information }) => {
+                let { userName, video, audio } = information;
                 const peerIdx = findPeer(from);
 
                 if (!peerIdx) {
@@ -206,7 +207,7 @@ const Room = props => {
     // BackButton
     const goToBack = e => {
         e.preventDefault();
-        socket.emit("[SERVER]-LEAVE-ROOM", { roomId, leaver: currentUser });
+        socket.emit("[SERVER]-LEAVE-ROOM", { roomId, userName: currentUser });
         sessionStorage.removeItem("user");
         window.location.href = "/";
     };
@@ -219,10 +220,12 @@ const Room = props => {
             let audioSwitch = preList["localUser"].audio;
 
             if (target === "video") {
+                console.log(userVideoRef.current.srcObject.getVideoTracks());
                 const userVideoTrack = userVideoRef.current.srcObject.getVideoTracks()[0];
                 videoSwitch = !videoSwitch;
                 userVideoTrack.enabled = videoSwitch;
             } else {
+                console.log(userVideoRef.current.srcObject.getAudioTracks());
                 const userAudioTrack = userVideoRef.current.srcObject.getAudioTracks()[0];
                 audioSwitch = !audioSwitch;
 
@@ -329,7 +332,7 @@ const Room = props => {
                     <VideoBox className={`width-peer${peers.length > 8 ? "" : peers.length}`}>
                         {userVideoAudio["localUser"].video ? null : <UserName>{currentUser}</UserName>}
                         <FaIcon className="fas fa-expand" />
-                        <MyVideo onClick={expandScreen} ref={userVideoRef} muted autoPlay playInline></MyVideo>
+                        <MyVideo onClick={expandScreen} ref={userVideoRef} muted autoPlay playinline="true"></MyVideo>
                     </VideoBox>
                     {/* Joined User Vidoe */}
                     {peers && peers.map((peer, index, arr) => createUserVideo(peer, index, arr))}

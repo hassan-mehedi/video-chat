@@ -10,6 +10,7 @@ const Chat = ({ display, roomId }) => {
 
     useEffect(() => {
         socket.on("[CLIENT]-RECEIVE-MESSAGE", ({ msg, sender }) => {
+            console.log(msg);
             setMsg(msgs => [...msgs, { sender, msg }]);
         });
     }, []);
@@ -28,6 +29,7 @@ const Chat = ({ display, roomId }) => {
             const msg = e.target.value;
 
             if (msg) {
+                console.log(msg);
                 socket.emit("[SERVER]-SEND-MESSAGE", { roomId, msg, sender: currentUser });
                 inputRef.current.value = "";
             }
